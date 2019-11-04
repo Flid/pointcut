@@ -1,6 +1,10 @@
+from typing import NamedTuple, Type, List, Callable
 
 
-class Delegate:
+
+
+
+class DelegateBase:
     def __init__(self):
         self._func = None
         self._dispatcher = None
@@ -23,20 +27,32 @@ class Delegate:
             return self
 
         if self._dispatcher is None:
-            return self._func(self._aspect, *args, **kwargs)
-
-        import pdb; pdb.set_trace()
+            return self._call_internal(*args, **kwargs)
 
         return self._dispatcher.send(self.name, *args, **kwargs)
 
     def _call_internal(self, *args, **kwargs):
         print("Calling method {}".format(self._func))
-        return self._func(self._aspect, *args, **kwargs)
+        return self._func(self._aspect.__class__, *args, **kwargs)
 
 
-class OverwriteDelegate(Delegate):
+class Delegate(DelegateBase):
+    pass
+
+
+class OverwriteDelegate(DelegateBase):
+    pass
+
+
+class MultiDelegate(DelegateBase):
+    pass
+
+
+class AddMultiDelegate(DelegateBase):
     pass
 
 
 delegate = Delegate
 overwrite_delegate = OverwriteDelegate
+multi_delegate = MultiDelegate
+add_multi_delegate = AddMultiDelegate

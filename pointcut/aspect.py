@@ -1,4 +1,4 @@
-from .delegate import Delegate
+from .delegate import Delegate, DelegateBase
 
 
 class DelegateRegisteringMeta(type):
@@ -8,7 +8,7 @@ class DelegateRegisteringMeta(type):
         cls._DELEGATE_ATTRS = set()
 
         for key, value in attrs.items():
-            if isinstance(value, Delegate):
+            if isinstance(value, DelegateBase):
                 cls._DELEGATE_ATTRS.add(key)
 
         cls._ALL_DELEGATE_ATTRS = set(cls._DELEGATE_ATTRS)
