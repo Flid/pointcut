@@ -2,7 +2,7 @@ import logging
 
 from example.core import KedroCore
 
-logging.basicConfig(level='DEBUG')
+logging.basicConfig(level='INFO')
 
 
 kedro = KedroCore()

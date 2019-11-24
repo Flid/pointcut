@@ -64,6 +64,7 @@ class PointcutDispatcher:
         self._aspects.append(aspect)
 
         def _add_new_handler(delegate):
+            logger.debug('Registering delegate %s', delegate.name)
             if delegate.name in self._handlers:
                 raise PointcutConfigurationError(
                     'Aspect {} tries to define a delegate {}, which already exists'.format(
@@ -75,6 +76,7 @@ class PointcutDispatcher:
             return handler
 
         def _append_delegate(delegate):
+            logger.debug('Updating delegate %s', delegate.name)
             if delegate.name not in self._handlers:
                 raise PointcutConfigurationError(
                     'Aspect {} tries to modify a delegate {}, which does not exist yet'.format(
@@ -86,11 +88,13 @@ class PointcutDispatcher:
             handler.delegates.append(delegate)
             return handler
 
-        for key in aspect_cls._DELEGATE_ATTRS:
-            delegate = getattr(aspect, key)
-            delegate._bootstrap_dispatcher(self)
+        for delegate_name, delegate_aspect_cls in aspect_cls._DELEGATE_ATTRS.items():
+            if delegate_aspect_cls != aspect_cls:
+                logger.debug('Skipping delegate %s, as it belongs to aspect %s', delegate_name, delegate_aspect_cls)
+                continue
 
-            logger.debug('Registering delegate %s', delegate.name)
+            delegate = getattr(aspect, delegate_name)
+            delegate._bootstrap_dispatcher(self)
 
             if isinstance(delegate, MultiDelegate):
                 _add_new_handler(delegate)

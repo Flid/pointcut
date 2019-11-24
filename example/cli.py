@@ -2,11 +2,11 @@ from typing import List, Any
 
 import click
 
-from example.runner import RunnerAspect
-from pointcut import Aspect, multi_delegate, delegate
+from example.workflows import WorkflowAspect
+from pointcut import multi_delegate, delegate
 
 
-class KedroCLIAspect(RunnerAspect):
+class KedroCLIAspect(WorkflowAspect):
     NAMESPACE = 'kedro_cli'
 
     @multi_delegate()
@@ -20,7 +20,7 @@ class KedroCLIAspect(RunnerAspect):
             print('Doing something useful...')
 
         def run():
-            result = cls.run_pipeline()
+            result = cls.kedro_run()
             print('Pipeline run result', result)
 
         return [

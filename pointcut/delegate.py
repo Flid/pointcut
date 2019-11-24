@@ -1,25 +1,32 @@
-from typing import NamedTuple, Type, List, Callable
+import logging
 
-
-
+logger = logging.getLogger(__name__)
 
 
 class DelegateBase:
-    def __init__(self):
+    def __init__(self, namespace=None):
+        self._overwrite_namespace = namespace
         self._func = None
         self._dispatcher = None
         self._aspect = None
+        self._origin_aspect_cls = None
 
     def _bootstrap_dispatcher(self, dispatcher):
         self._dispatcher = dispatcher
 
-    def _bootstrap_aspect(self, aspect):
+    def _bootstrap_aspect(self, aspect, origin_aspect_cls):
         self._aspect = aspect
+        self._origin_aspect_cls = origin_aspect_cls
 
     @property
     def name(self):
-        assert self._aspect.NAMESPACE
-        return "{}.{}".format(self._aspect.NAMESPACE, self._func.__name__)
+        if not self._origin_aspect_cls.NAMESPACE:
+            raise ValueError('Aspect {} has no namespace'.format(self._origin_aspect_cls))
+
+        return "{}.{}".format(
+            self._overwrite_namespace or self._origin_aspect_cls.NAMESPACE,
+            self._func.__name__,
+        )
 
     def __call__(self, *args, **kwargs):
         if self._func is None:
@@ -32,7 +39,7 @@ class DelegateBase:
         return self._dispatcher.send(self.name, *args, **kwargs)
 
     def _call_internal(self, *args, **kwargs):
-        print("Calling method {}".format(self._func))
+        logger.debug("Calling method {}".format(self._func))
         return self._func(self._aspect.__class__, *args, **kwargs)
 
 
